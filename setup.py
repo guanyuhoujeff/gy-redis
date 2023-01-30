@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="example-pkg-YOUR-USERNAME-HERE", # 
-    version="0.0.1",
+    name="gy_redis", # 
+    version="0.0.2",
     author="jeff7522553",
     author_email="jeff7522553@gmail.com",
-    description="A small example package",
+    description="GuanYu for test",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/guanyuhoujeff/gy-redis",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

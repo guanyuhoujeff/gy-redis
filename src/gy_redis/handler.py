@@ -1,6 +1,5 @@
 import redis
 import numpy as np
-import cv2
 from typing import Optional, Union
 import json
 import abc
@@ -150,6 +149,7 @@ class RedisDictHander(RedisHandlerInterface):
 class RedisImageHander(RedisHandlerInterface):
     def __init__(self, redis_client: RedisConnector, topic: str) -> None:
         super().__init__(redis_client, topic)
+        import cv2
         
     def _convertReadValue(self, value) -> Optional[np.ndarray]:
         if isinstance(value, bytes):
