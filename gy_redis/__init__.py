@@ -1,12 +1,41 @@
-# import os
-# import sys
+import sys
 
-# def add_path(path):
-#     if path not in sys.path:
-#         sys.path.insert(0, path)
+from gy_redis.manager import (
+    RedisManager,
+    RedisConnector,
+    RedisBytesHander,
+    RedisDictHander,
+    RedisImageHander
+)
 
-# this_dir = os.path.dirname(__file__)
-# # print('Module    sys.path  ==> ', sys.path)
-# add_path(this_dir)
+if sys.version_info >= (3, 8):
+    from importlib import metadata
+else:
+    import importlib_metadata as metadata
 
-from .manager import RedisManager
+
+def int_or_str(value):
+    try:
+        return int(value)
+    except ValueError:
+        return value
+
+
+try:
+    __version__ = metadata.version("gy_redis")
+except metadata.PackageNotFoundError:
+    __version__ = "99.99.99"
+
+
+try:
+    VERSION = tuple(map(int_or_str, __version__.split(".")))
+except AttributeError:
+    VERSION = tuple(99, 99, 99)
+
+__all__ = [
+    "RedisManager",
+    "RedisConnector",
+    "RedisBytesHander",
+    "RedisDictHander",
+    "RedisImageHander",
+]
