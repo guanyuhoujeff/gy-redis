@@ -8,3 +8,5 @@
 # this_dir = os.path.dirname(__file__)
 # # print('Module    sys.path  ==> ', sys.path)
 # add_path(this_dir)
+
+from .manager import RedisManager

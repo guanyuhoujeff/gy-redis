@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gy_redis", # 
-    version="0.0.2",
+    version="0.0.5",
     author="jeff7522553",
     author_email="jeff7522553@gmail.com",
     description="GuanYu for test",
