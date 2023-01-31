@@ -23,7 +23,7 @@ class RedisManager(object):
             redis_client (Union[redis.Redis, redis.Sentinel]): 可以給官方（redis-py）的一般redis 或哨兵模式的redis
             sentinel_name (Optional[str], optional): 如果是給哨兵模式的redis，就要給sentinel_name . Defaults to None.
         """
-        self._redis_client = RedisConnector(redis_client)
+        self._redis_client = RedisConnector(redis_client, sentinel_name)
     
     def makeDictHandler(self, topic : str) -> RedisDictHander:
         return RedisDictHander(self._redis_client, topic)
