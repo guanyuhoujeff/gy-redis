@@ -5,6 +5,7 @@ import json
 import abc
 from reactivex.subject import BehaviorSubject
 import reactivex.operators as ops
+import cv2
 
 class RedisPubsubJob:
     def __init__(self, pub_sub: redis.client.PubSub,  run_in_thread=False) -> None:
@@ -149,7 +150,6 @@ class RedisDictHander(RedisHandlerInterface):
 class RedisImageHander(RedisHandlerInterface):
     def __init__(self, redis_client: RedisConnector, topic: str) -> None:
         super().__init__(redis_client, topic)
-        import cv2
         
     def _convertReadValue(self, value) -> Optional[np.ndarray]:
         if isinstance(value, bytes):

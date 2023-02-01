@@ -2,7 +2,7 @@
 
 ## pip package
 ```
-pip install numpy redis reactivex
+pip install numpy redis reactivex 
 ```
 
 ## build package
