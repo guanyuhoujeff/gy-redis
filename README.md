@@ -2,7 +2,11 @@
 
 ## pip package
 ```
+<<<<<<< HEAD
 pip install gy-redis
+=======
+pip install numpy redis reactivex 
+>>>>>>> 12ae13dd42968f39fb7164b8da38f6cb8c82424b
 ```
 
 ## build package

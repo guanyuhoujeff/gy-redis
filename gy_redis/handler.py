@@ -145,8 +145,13 @@ class RedisDictHander(RedisHandlerInterface):
         return json.dumps(value)
 
 class RedisImageHander(RedisHandlerInterface):
+<<<<<<< HEAD
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__(redis_client, topic, sentinel_name)
+=======
+    def __init__(self, redis_client: RedisConnector, topic: str) -> None:
+        super().__init__(redis_client, topic)
+>>>>>>> 12ae13dd42968f39fb7164b8da38f6cb8c82424b
         
     def _convertReadValue(self, value) -> Optional[np.ndarray]:
         if isinstance(value, bytes):
