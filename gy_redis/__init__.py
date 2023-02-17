@@ -2,10 +2,13 @@ import sys
 
 from gy_redis.manager import (
     RedisManager,
-    RedisConnector,
+)
+
+from gy_redis.handler import (
     RedisBytesHander,
+    RedisImageHander,
     RedisDictHander,
-    RedisImageHander
+    RedisConnector,
 )
 
 if sys.version_info >= (3, 8):

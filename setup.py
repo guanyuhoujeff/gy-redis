@@ -4,9 +4,18 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
+install_requires = [
+     'numpy', 
+     'redis',
+     'reactivex>=4.0.4',
+     'opencv-python>=4.3.0',
+]
+
+
 setuptools.setup(
     name="gy_redis", # 
-    version="0.0.12",
+    version="0.1.4",
     author="jeff7522553",
     author_email="jeff7522553@gmail.com",
     description="GuanYu for test",
@@ -19,5 +28,9 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
+    install_requires=install_requires,
+        dependency_links=[
+        'https://pypi.python.org/simple',
+    ],
 )

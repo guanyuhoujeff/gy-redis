@@ -2,7 +2,6 @@ import redis
 from typing import Optional, Union
 
 from .handler import (
-    RedisConnector, 
     RedisDictHander,
     RedisImageHander,
     RedisBytesHander
@@ -23,7 +22,8 @@ class RedisManager(object):
             redis_client (Union[redis.Redis, redis.Sentinel]): 可以給官方（redis-py）的一般redis 或哨兵模式的redis
             sentinel_name (Optional[str], optional): 如果是給哨兵模式的redis，就要給sentinel_name . Defaults to None.
         """
-        self._redis_client = RedisConnector(redis_client, sentinel_name)
+        self._redis_client = redis_client
+        self._sentinel_name = sentinel_name
     
     def makeDictHandler(self, topic : str) -> RedisDictHander:
         return RedisDictHander(self._redis_client, topic)

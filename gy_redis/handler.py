@@ -5,6 +5,7 @@ import json
 import abc
 from reactivex.subject import BehaviorSubject
 import reactivex.operators as ops
+import cv2
 
 class RedisPubsubJob:
     def __init__(self, pub_sub: redis.client.PubSub,  run_in_thread=False) -> None:
@@ -47,7 +48,7 @@ class RedisConnector:
             self._slaver_client = redis_client
         elif isinstance(redis_client, redis.Sentinel):
             if sentinel_name is None:
-                raise ValueError('if use redis sentinel, sentinel_name_name not be None')
+                raise ValueError('if use redis sentinel, sentinel_name not be None')
             self._master_client = redis_client.master_for(sentinel_name)
             self._slaver_client = redis_client.slave_for(sentinel_name)
             
@@ -68,9 +69,9 @@ class RedisConnector:
         self._master_client.flushall()
 
 class RedisHandlerInterface(abc.ABC):
-    def __init__(self, redis_client: RedisConnector, topic: str) -> None:
+    def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__()
-        self._redis_client = redis_client
+        self._redis_connector = RedisConnector(redis_client, sentinel_name)
         self._topic = topic
         self._pubsub_job : Optional[RedisPubsubJob] = None
         self._value_subject : BehaviorSubject = BehaviorSubject(None)
@@ -88,15 +89,15 @@ class RedisHandlerInterface(abc.ABC):
         pass
     
     def get(self):
-        value = self._redis_client.slaver_client.get(self._topic)
+        value = self._redis_connector.slaver_client.get(self._topic)
         value = self._convertReadValue(value)
         return value
     
     def set(self, value):
-        self._redis_client._master_client.set(self._topic, self._convertWriteValue(value))
+        self._redis_connector._master_client.set(self._topic, self._convertWriteValue(value))
     
     def publish(self, value):
-        self._redis_client._master_client.publish(self._topic, self._convertWriteValue(value))
+        self._redis_connector._master_client.publish(self._topic, self._convertWriteValue(value))
     
     def subscribe(self, callback_function, run_in_thread=True):
         """redis 的訂閱模式
@@ -107,7 +108,7 @@ class RedisHandlerInterface(abc.ABC):
         """
         if self._pubsub_job is None:
             self._pubsub_job = RedisPubsubJob(
-                pub_sub=self._redis_client.slaver_client.pubsub(ignore_subscribe_messages = True), 
+                pub_sub=self._redis_connector.slaver_client.pubsub(ignore_subscribe_messages = True), 
                 run_in_thread=run_in_thread
             )
             self._pubsub_job.addPubsubFunction(self.topic, self._value_subject.on_next)
@@ -123,16 +124,15 @@ class RedisHandlerInterface(abc.ABC):
             self._pubsub_job.start()
     
     def delete(self):
-        self._redis_client.master_client.delete(self.topic)
+        self._redis_connector.master_client.delete(self.topic)
 
     def stopPubsubJob(self):
         if not self._pubsub_job is None and self._pubsub_job.is_alive:
             self._pubsub_job.stop()
             
-
 class RedisDictHander(RedisHandlerInterface):
-    def __init__(self, redis_client: RedisConnector, topic: str) -> None:
-        super().__init__(redis_client, topic)
+    def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
+        super().__init__(redis_client, topic, sentinel_name)
         
     def _convertReadValue(self, value) -> Optional[dict]:
         if isinstance(value, bytes):
@@ -144,12 +144,9 @@ class RedisDictHander(RedisHandlerInterface):
     def _convertWriteValue(self, value) -> Optional[dict]:
         return json.dumps(value)
 
-
-
 class RedisImageHander(RedisHandlerInterface):
-    def __init__(self, redis_client: RedisConnector, topic: str) -> None:
-        super().__init__(redis_client, topic)
-        import cv2
+    def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
+        super().__init__(redis_client, topic, sentinel_name)
         
     def _convertReadValue(self, value) -> Optional[np.ndarray]:
         if isinstance(value, bytes):
@@ -164,11 +161,9 @@ class RedisImageHander(RedisHandlerInterface):
     def _convertWriteValue(self, value) -> Optional[np.ndarray]:
         return cv2.imencode('.jpg', value)[1].tobytes()
 
-
-
 class RedisBytesHander(RedisHandlerInterface):
-    def __init__(self, redis_client: RedisConnector, topic: str) -> None:
-        super().__init__(redis_client, topic)
+    def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
+        super().__init__(redis_client, topic, sentinel_name)
         
     def _convertReadValue(self, value) -> Optional[bytes]:
         return value
