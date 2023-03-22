@@ -130,7 +130,7 @@ class RedisHandlerInterface(abc.ABC):
         if not self._pubsub_job is None and self._pubsub_job.is_alive:
             self._pubsub_job.stop()
             
-class RedisDictHander(RedisHandlerInterface):
+class RedisDictHandler(RedisHandlerInterface):
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__(redis_client, topic, sentinel_name)
         
@@ -144,7 +144,7 @@ class RedisDictHander(RedisHandlerInterface):
     def _convertWriteValue(self, value) -> Optional[dict]:
         return json.dumps(value)
 
-class RedisImageHander(RedisHandlerInterface):
+class RedisImageHandler(RedisHandlerInterface):
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__(redis_client, topic, sentinel_name)
         
@@ -161,7 +161,7 @@ class RedisImageHander(RedisHandlerInterface):
     def _convertWriteValue(self, value) -> Optional[np.ndarray]:
         return cv2.imencode('.jpg', value)[1].tobytes()
 
-class RedisBytesHander(RedisHandlerInterface):
+class RedisBytesHandler(RedisHandlerInterface):
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__(redis_client, topic, sentinel_name)
         

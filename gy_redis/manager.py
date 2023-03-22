@@ -2,9 +2,9 @@ import redis
 from typing import Optional, Union
 
 from .handler import (
-    RedisDictHander,
-    RedisImageHander,
-    RedisBytesHander
+    RedisDictHandler,
+    RedisImageHandler,
+    RedisBytesHandler
 )
          
 class RedisManager(object):
@@ -25,11 +25,11 @@ class RedisManager(object):
         self._redis_client = redis_client
         self._sentinel_name = sentinel_name
     
-    def makeDictHandler(self, topic : str) -> RedisDictHander:
-        return RedisDictHander(self._redis_client, topic)
+    def makeDictHandler(self, topic : str) -> RedisDictHandler:
+        return RedisDictHandler(self._redis_client, topic)
 
-    def makeImageHandler(self, topic : str) -> RedisImageHander:
-        return RedisImageHander(self._redis_client, topic)
+    def makeImageHandler(self, topic : str) -> RedisImageHandler:
+        return RedisImageHandler(self._redis_client, topic)
 
-    def makeBytesHandler(self, topic : str) -> RedisBytesHander:
-        return RedisBytesHander(self._redis_client, topic)
+    def makeBytesHandler(self, topic : str) -> RedisBytesHandler:
+        return RedisBytesHandler(self._redis_client, topic)

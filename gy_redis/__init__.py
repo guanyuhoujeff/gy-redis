@@ -5,9 +5,9 @@ from gy_redis.manager import (
 )
 
 from gy_redis.handler import (
-    RedisBytesHander,
-    RedisImageHander,
-    RedisDictHander,
+    RedisBytesHandler,
+    RedisImageHandler,
+    RedisDictHandler,
     RedisConnector,
 )
 
@@ -38,7 +38,7 @@ except AttributeError:
 __all__ = [
     "RedisManager",
     "RedisConnector",
-    "RedisBytesHander",
-    "RedisDictHander",
-    "RedisImageHander",
+    "RedisBytesHandler",
+    "RedisDictHandler",
+    "RedisImageHandler",
 ]
