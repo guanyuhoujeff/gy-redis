@@ -14,7 +14,7 @@ class RedisPubsubJob:
         self._pub_sub_thread_job : redis.client.PubSubWorkerThread = None
         
         if self._run_in_thread:
-            self._pub_sub_thread_job = self._pub_sub.run_in_thread(sleep_time=0.001)
+            self._pub_sub_thread_job = self._pub_sub.run_in_thread(sleep_time=0.0001, daemon=True)
     
     def addPubsubFunction(self, sub_topic, fn):
         self._pub_sub.subscribe(**{sub_topic: fn})
@@ -33,6 +33,11 @@ class RedisPubsubJob:
             return self._pub_sub_thread_job.is_alive
         else:
             return False
+        
+    @property
+    def pub_sub(self) -> redis.client.PubSub:
+        return  self._pub_sub
+
 
 class RedisConnector:
     ## python SingleTon
@@ -76,6 +81,8 @@ class RedisHandlerInterface(abc.ABC):
         self._pubsub_job : Optional[RedisPubsubJob] = None
         self._value_subject : BehaviorSubject = BehaviorSubject(None)
         
+
+
     @property
     def topic(self):
         return self._topic
@@ -107,21 +114,17 @@ class RedisHandlerInterface(abc.ABC):
             run_in_thread (bool, optional): 訂閱模式要不要跑在背景. Defaults to True.
         """
         if self._pubsub_job is None:
-            self._pubsub_job = RedisPubsubJob(
-                pub_sub=self._redis_connector.slaver_client.pubsub(ignore_subscribe_messages = True), 
-                run_in_thread=run_in_thread
-            )
+            self.buildPubsub(run_in_thread)
             self._pubsub_job.addPubsubFunction(self.topic, self._value_subject.on_next)
-            self._value_subject.pipe(
+            self._self_value_stream_sub = self._value_subject.pipe(
                 ops.filter(lambda value: not value is None),
                 ops.map(lambda value: self._convertReadValue(value['data'])),
             ).subscribe(
                 on_next=callback_function, 
                 on_error=lambda err: print(f'Error {self.topic} ', str(err))
             )
-            
-        if not run_in_thread:
-            self._pubsub_job.start()
+            if not run_in_thread:
+                self._pubsub_job.start()
     
     def delete(self):
         self._redis_connector.master_client.delete(self.topic)
@@ -129,7 +132,23 @@ class RedisHandlerInterface(abc.ABC):
     def stopPubsubJob(self):
         if not self._pubsub_job is None and self._pubsub_job.is_alive:
             self._pubsub_job.stop()
-            
+            self._self_value_stream_sub.dispose()
+    
+    def __del__(self):
+        self._self_value_stream_sub.dispose()
+
+
+    def buildPubsub(self, run_in_thread=True):
+        self._pubsub_job = RedisPubsubJob(
+            pub_sub=self._redis_connector.slaver_client.pubsub(ignore_subscribe_messages = True), 
+            run_in_thread=run_in_thread
+        )
+
+    @property
+    def pubsub_job(self):
+        return self._pubsub_job
+
+
 class RedisDictHandler(RedisHandlerInterface):
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
         super().__init__(redis_client, topic, sentinel_name)

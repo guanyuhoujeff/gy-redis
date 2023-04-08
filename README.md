@@ -2,7 +2,7 @@
 
 ## pip package
 ```
-pip install gy-redis
+pip install gy-redis -U
 ```
 
 ## build package
