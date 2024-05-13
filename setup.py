@@ -15,7 +15,7 @@ install_requires = [
 
 setuptools.setup(
     name="gy_redis", # 
-    version="0.1.6",
+    version="0.1.8",
     author="jeff7522553",
     author_email="jeff7522553@gmail.com",
     description="GuanYu for test",

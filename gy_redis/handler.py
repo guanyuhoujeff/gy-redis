@@ -38,7 +38,6 @@ class RedisPubsubJob:
     def pub_sub(self) -> redis.client.PubSub:
         return  self._pub_sub
 
-
 class RedisConnector:
     ## python SingleTon
     _instance = None 
@@ -135,7 +134,7 @@ class RedisHandlerInterface(abc.ABC):
             self._self_value_stream_sub.dispose()
     
     def __del__(self):
-        self._self_value_stream_sub.dispose()
+        self.stopPubsubJob()
 
 
     def buildPubsub(self, run_in_thread=True):
@@ -147,7 +146,6 @@ class RedisHandlerInterface(abc.ABC):
     @property
     def pubsub_job(self):
         return self._pubsub_job
-
 
 class RedisDictHandler(RedisHandlerInterface):
     def __init__(self, redis_client: Union[redis.Redis, redis.Sentinel], topic: str, sentinel_name : Optional[str]=None) -> None:
