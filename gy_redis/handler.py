@@ -79,7 +79,7 @@ class RedisHandlerInterface(abc.ABC):
         self._topic = topic
         self._pubsub_job : Optional[RedisPubsubJob] = None
         self._value_subject : BehaviorSubject = BehaviorSubject(None)
-        
+        self._value_stream_sub : Optional[RedisPubsubJob] = None
 
 
     @property
@@ -115,7 +115,7 @@ class RedisHandlerInterface(abc.ABC):
         if self._pubsub_job is None:
             self.buildPubsub(run_in_thread)
             self._pubsub_job.addPubsubFunction(self.topic, self._value_subject.on_next)
-            self._self_value_stream_sub = self._value_subject.pipe(
+            self._value_stream_sub = self._value_subject.pipe(
                 ops.filter(lambda value: not value is None),
                 ops.map(lambda value: self._convertReadValue(value['data'])),
             ).subscribe(
@@ -131,7 +131,8 @@ class RedisHandlerInterface(abc.ABC):
     def stopPubsubJob(self):
         if not self._pubsub_job is None and self._pubsub_job.is_alive:
             self._pubsub_job.stop()
-            self._self_value_stream_sub.dispose()
+            if not self._value_stream_sub is None:
+                self._value_stream_sub.dispose()
     
     def __del__(self):
         self.stopPubsubJob()
